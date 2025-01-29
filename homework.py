@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from http import HTTPStatus
 
@@ -7,14 +8,14 @@ import requests
 from dotenv import load_dotenv
 from telebot import TeleBot
 
-from exceptions import EnvironmentVariableEmpty, EmptyHomeworks
+from exceptions import EnvironmentVariablesIsEmpty, EmptyHomeworks
 
 load_dotenv()
 
 logging.basicConfig(
     level=logging.DEBUG,
     filename='main.log',
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(lineno)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(lineno)d'
 )
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -32,12 +33,13 @@ HOMEWORK_VERDICTS = {
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
 
-# ЗДЕСЬ ПЕРЕСМОТРЕТЬ? Почему именно None?
+
 def check_tokens():
     """Проверка на наличие данных в переменных окружения."""
-    if PRACTICUM_TOKEN is None or TELEGRAM_TOKEN is None or TELEGRAM_CHAT_ID is None:
+    if (PRACTICUM_TOKEN is None or
+            TELEGRAM_TOKEN is None or TELEGRAM_CHAT_ID is None):
         logging.critical('Отсутствуют переменные окружения.')
-        raise EnvironmentVariableEmpty
+        raise EnvironmentVariablesIsEmpty
 
 
 def send_message(bot, message):
@@ -46,6 +48,7 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, text=message)
     except Exception as error:
         logging.error(f'Сбой при отправке сообщения. Ошибка: {error}')
+        bot.send_message(TELEGRAM_CHAT_ID, text=f'Возникла ошибка {error}')
     else:
         logging.debug('Успешная отправка сообщения.')
 
@@ -53,7 +56,6 @@ def send_message(bot, message):
 def get_api_answer(timestamp):
     """Запрос к API и получение данных."""
     try:
-        # payload = {'from_date': timestamp - 604_800 * 2}
         payload = {'from_date': timestamp}
         response = requests.get(ENDPOINT, headers=HEADERS,  params=payload)
     except requests.RequestException as error:
@@ -80,26 +82,16 @@ def check_response(response):
         raise TypeError
     if len(get_homework) == 0:
         logging.debug('Пустой список.')
-        return False
-        # raise IndexError
-    # return get_homework[0]
-    return True
+        raise IndexError
 
 
 def parse_status(homework):
     """Извлечение данных о домашней работе."""
-    # homework_name = homework.get('homework_name')
-    # verdict = HOMEWORK_VERDICTS.get((homework.get('status')))
-    # if verdict is None or homework_name is None:
-    #     logging.error('Неожиданный статус домашней работы.')
-    #     raise TypeError
-    try:
-        homework_name = homework['homework_name']
-        homework_status = homework['status']
-        verdict = HOMEWORK_VERDICTS[homework_status]
-    except KeyError:
+    homework_name = homework.get('homework_name')
+    verdict = HOMEWORK_VERDICTS.get((homework.get('status')))
+    if verdict is None or homework_name is None:
         logging.error('Неожиданный статус домашней работы.')
-        raise ValueError
+        raise TypeError
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 

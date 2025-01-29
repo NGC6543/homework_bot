@@ -1,7 +1,5 @@
-
-class EnvironmentVariableEmpty(Exception):
-    """Переменные окружения пустые.
-    """
+class EnvironmentVariablesIsEmpty(Exception):
+    """Переменные окружения пусты."""
 
 
 class EmptyHomeworks(Exception):
