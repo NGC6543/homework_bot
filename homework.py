@@ -42,7 +42,7 @@ def check_tokens():
 
 
 def send_message(bot, message):
-    """Отправка сообщения боту."""
+    """Отправка сообщения пользователю."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, text=message)
     except Exception as error:
