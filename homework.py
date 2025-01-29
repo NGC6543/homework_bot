@@ -35,8 +35,8 @@ HOMEWORK_VERDICTS = {
 
 def check_tokens():
     """Проверка на наличие данных в переменных окружения."""
-    if (PRACTICUM_TOKEN is None or
-            TELEGRAM_TOKEN is None or TELEGRAM_CHAT_ID is None):
+    if (PRACTICUM_TOKEN is None
+            or TELEGRAM_TOKEN is None or TELEGRAM_CHAT_ID is None):
         logging.critical('Отсутствуют переменные окружения.')
         raise EnvironmentVariablesIsEmpty
 
@@ -56,7 +56,7 @@ def get_api_answer(timestamp):
     """Запрос к API и получение данных."""
     try:
         payload = {'from_date': timestamp}
-        response = requests.get(ENDPOINT, headers=HEADERS,  params=payload)
+        response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
     except requests.RequestException as error:
         logging.error(f'Запрос недоступен. Ошибка: {error}')
     else:
