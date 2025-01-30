@@ -67,8 +67,11 @@ def get_api_answer(timestamp):
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
     except requests.RequestException as error:
         raise ConnectionError(
-            f'При подключении к {ENDPOINT} с параметрами from_date: ',
-            f'{payload['from_date']} возникла ошибка: {error}')
+            'При подключении к {} с параметрами from_date: {} '
+            'возникла ошибка: {}'.format(
+                ENDPOINT, payload['from_date'], error
+            )
+        )
     else:
         if response.status_code != HTTPStatus.OK:
             raise ValueError('Неожиданный статус запроса: ',
