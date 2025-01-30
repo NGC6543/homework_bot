@@ -36,12 +36,11 @@ def check_tokens():
     missing_tokens = [token for token in tokens if not globals()[token]]
     if missing_tokens:
         missing_tokens_to_str = ', '.join(missing_tokens)
-        logging.critical(
-            f'Отсутствуют переменные окружения: {missing_tokens_to_str}'
+        error_message = 'Отсутствуют переменные окружения: {}'.format(
+            missing_tokens_to_str
         )
-        raise EnvironmentVariablesIsEmpty(
-            f'Отсутствуют переменные окружения: {missing_tokens_to_str}'
-        )
+        logging.critical(error_message)
+        raise EnvironmentVariablesIsEmpty(error_message)
 
 
 def send_message(bot, message):
@@ -84,14 +83,16 @@ def check_response(response):
     """Функция для проверки ответа запроса."""
     logging.info('Начало проверки ответа сервера.')
     if not isinstance(response, dict):
-        raise TypeError('Неверный тип данных запроса. Должен быть словарь.')
+        raise TypeError(f'Полученный тип данных запроса: {type(response)}. '
+                        'Должен быть dict.')
     if 'homeworks' not in response:
         raise KeyHomeworksAbsence('Ключ homeworks отсутствует.')
     get_homeworks = response.get('homeworks')
     if not isinstance(get_homeworks, list):
-        raise TypeError('Тип данных ключа homeworks должен быть списком.')
-    if not get_homeworks:
-        logging.debug('Пустой список.')
+        raise TypeError('Полученный тип данных ключа homeworks: {}'
+                        'Должен быть list.'.format(
+                            type(get_homeworks))
+                        )
     logging.info('Проверка успешно пройдена.')
 
 
@@ -113,9 +114,6 @@ def parse_status(homework):
             f'Ключ {status} в словаре HOMEWORK_VERDICTS отсутствует.'
         )
     verdict = HOMEWORK_VERDICTS.get(status)
-    if verdict is None:
-        raise ValueError(f'Отсутствует значение {status}',
-                         'в словаре HOMEWORK_VERDICTS.')
     logging.info('Успешное извлечение данных о домашней работе.')
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
@@ -134,16 +132,19 @@ def main():
             response = get_api_answer(timestamp)
             check_response(response)
             homework = response.get('homeworks')
-            if homework:
+            if not homework:
+                logging.debug('Получен пустой список homeworks.')
+            else:
                 message = parse_status(homework[0])
                 send_message(bot, message)
+                last_message = message
             timestamp = response.get('current_date')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message, exc_info=True)
             if message != last_message:
                 send_message(bot, message)
-            last_message = message
+                last_message = message
         finally:
             time.sleep(RETRY_PERIOD)
 
