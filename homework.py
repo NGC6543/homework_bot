@@ -5,6 +5,7 @@ import sys
 from http import HTTPStatus
 
 import requests
+import telebot
 from dotenv import load_dotenv
 from telebot import TeleBot
 
