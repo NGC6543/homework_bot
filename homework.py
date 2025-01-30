@@ -60,7 +60,7 @@ def get_api_answer(timestamp):
     payload = {'from_date': timestamp}
     logging.info(
         (f'Начало запроса к {ENDPOINT} с параметрами '
-         f'from_date: {payload['from_date']}'
+         f'from_date: {payload.get('from_date')}'
          )
     )
     try:
