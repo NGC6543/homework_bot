@@ -59,8 +59,9 @@ def get_api_answer(timestamp):
     """Запрос к API и получение данных."""
     payload = {'from_date': timestamp}
     logging.info(
-        f'Начало запроса к {ENDPOINT} с параметрами '
-        f'from_date: {payload.get('from_date')}'
+        'Начало запроса к {} с параметрами from_date: {}'.format(
+            ENDPOINT, payload.get('from_date')
+        )
     )
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
