@@ -58,12 +58,13 @@ def send_message(bot, message):
 def get_api_answer(timestamp):
     """Запрос к API и получение данных."""
     payload = {'from_date': timestamp}
+    logging.info(
+        (f'Начало запроса к {ENDPOINT} с параметрами '
+         f'from_date: {payload['from_date']}'
+         )
+    )
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
-        logging.info(
-            f'Начало запроса к {ENDPOINT} с параметрами from_date:',
-            f'{payload['from_date']}'
-        )
     except requests.RequestException as error:
         raise ConnectionError(
             f'При подключении к {ENDPOINT} с параметрами from_date: ',
@@ -87,7 +88,7 @@ def check_response(response):
         raise TypeError('Тип данных ключа homeworks должен быть списком.')
     if not get_homeworks:
         logging.debug('Пустой список.')
-    logging.info('Провека успешно пройдена.')
+    logging.info('Проверка успешно пройдена.')
 
 
 def parse_status(homework):
