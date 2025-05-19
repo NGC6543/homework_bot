@@ -15,7 +15,7 @@ cd homework_bot
 
 ## Cоздать и активировать виртуальное окружение:
 ```
-python3 -m venv env
+python -m venv env
 ```
 ```
 source env/bin/activate
@@ -23,19 +23,21 @@ source env/bin/activate
 
 ## Установить зависимости из файла requirements.txt:
 ```
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 ```
 pip install -r requirements.txt
 ```
 
-## Выполнить миграции:
+## Создать файл .env и добавить туда следующие переменные:
 ```
-python3 manage.py migrate
+PRACTICUM_TOKEN = <Токен практикума>
+TELEGRAM_TOKEN = <Токен бота>
+TELEGRAM_CHAT_ID = <Токен чата, куда присылать уведомления>
 ```
-## Запустить проект:
+## Запустить бота:
 ```
-python3 manage.py runserver
+python homework.py
 ```
 
 # Стек технологий:
